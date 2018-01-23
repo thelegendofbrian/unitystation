@@ -88,6 +88,12 @@ namespace Tilemaps.Behaviours.Objects
 			Position = Vector3Int.RoundToInt(transform.localPosition);
 		}
 
+		//Mostly used for push so no one can run into the position we are
+		//currently moving to:
+		public void ReservePosition(Vector3Int posToReserve){
+			layer?.Objects.Add(posToReserve, this);
+		}
+
 		public void Register()
 		{
 			UpdatePosition();

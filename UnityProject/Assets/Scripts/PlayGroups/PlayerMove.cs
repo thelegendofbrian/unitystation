@@ -85,7 +85,10 @@ namespace PlayGroup
 
 			if (adjustedDirection == Vector3.zero)
 			{
-				Interact(currentPosition, direction);
+				Vector3Int interactPos = currentPosition + direction;
+				//Try to interact with anything in our path (doors, PushPull)
+				//Send the direction for push objects
+				Interact(interactPos, direction);
 			}
 			return currentPosition + adjustedDirection;
 		}
@@ -232,32 +235,55 @@ namespace PlayGroup
 			return Vector3Int.zero;
 		}
 
-		private void Interact(Vector3 currentPosition, Vector3 direction)
+		private void Interact(Vector3Int interactPos, Vector3Int dirOfIntent)
 		{
-			Vector3Int position = Vector3Int.RoundToInt(currentPosition + direction);
-			InteractDoor(currentPosition, direction);
+			//Only start with the client doing the action:
+			if (PlayerManager.LocalPlayer == gameObject) {
+				InteractPush(interactPos, dirOfIntent);
+				InteractDoor(interactPos);
+			}
 		}
 
-		private void InteractDoor(Vector3 currentPosition, Vector3 direction)
-		{
-			// Make sure there is a door controller
-			Vector3Int position = Vector3Int.RoundToInt(currentPosition + direction);
+		private void InteractPush(Vector3Int interactPos, Vector3Int dirOfIntent){
+			PushPull[] pushObj = matrix.Get<PushPull>(interactPos).ToArray();
+			//Give the new position you want to push the object into:
+			Vector3Int tryPushNewPos = interactPos + dirOfIntent;
 
-			DoorController doorController = matrix.GetFirst<DoorController>(position);
+			if(!matrix.IsPassableAt(tryPushNewPos)){
+				//matrix is checked on PushPull but it is worth doing it here
+				//also to save cpu and a network Cmd call
+				return;
+			}
 
-			if (!doorController)
-			{
-				doorController = matrix.GetFirst<DoorController>(Vector3Int.RoundToInt(currentPosition));
-
-				if (doorController)
-				{
-					RegisterDoor registerDoor = doorController.GetComponent<RegisterDoor>();
-					if (registerDoor.IsPassable(position))
-					{
-						doorController = null;
-					}
+			for (int i = 0; i < pushObj.Length; i++){
+				//Only push, pushable objects
+				if (pushObj[i].isPlayerPushable) {
+					pushObj[i].TryPush(tryPushNewPos);
+					PlayerManager.LocalPlayerScript.playerNetworkActions.CmdTryPush(pushObj[i].gameObject,
+					                                                                tryPushNewPos);
 				}
 			}
+		}
+
+		private void InteractDoor(Vector3Int interactPos)
+		{
+			DoorController doorController = matrix.GetFirst<DoorController>(interactPos);
+
+			//FIXME: make this sit below make sense (turning off for the time being):
+			//if (!doorController)
+			//{
+			//	//I'm assuming this tries to open a door you are stuck in?
+			//	doorController = matrix.GetFirst<DoorController>(Vector3Int.RoundToInt(transform.localPosition));
+
+			//	if (doorController)
+			//	{
+			//		RegisterDoor registerDoor = doorController.GetComponent<RegisterDoor>();
+			//		if (registerDoor.IsPassable(position))
+			//		{
+			//			doorController = null;
+			//		}
+			//	}
+			//}
 
 			// Attempt to open door
 			if (doorController != null && allowInput)
