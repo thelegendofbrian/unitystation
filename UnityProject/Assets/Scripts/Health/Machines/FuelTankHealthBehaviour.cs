@@ -12,7 +12,7 @@ public class FuelTankHealthBehaviour : HealthBehaviour
 
 	protected override void OnDeathActions()
 	{
-		pushPull.BreakPull();
+		Debug.Log("BREAK PULL HERE!");
 		float delay = 0f;
 		switch (LastDamageType)
 		{

@@ -59,10 +59,7 @@ namespace Objects
 				colliders[i].enabled = false;
 			}
 
-			objectActions.BreakPull();
-			registerTile.IsClosed = false;
-			objectActions.allowedToMove = false;
-			objectActions.isPushable = false;
+			Debug.Log("BREAK PULL HERE!");
 		}
 
 		private void playDeathSound()

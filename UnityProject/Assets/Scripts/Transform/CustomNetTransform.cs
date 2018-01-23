@@ -247,16 +247,12 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 	/// </summary>
 	public void PushToPosition(Vector3 pos, float speed, PushPull pushComponent)
 	{
-		if(pushComponent.pushing || predictivePushing){
-			return;
-		}
 		TransformState newState = new TransformState();
 		newState.Active = true;
 		newState.Speed = speed;
 		newState.localPos = pos;
 		UpdateClientState(newState);
 		predictivePushing = true;
-		pushComponent.pushing = true;
 	}
 
 	public void UpdateClientState(TransformState newState)
