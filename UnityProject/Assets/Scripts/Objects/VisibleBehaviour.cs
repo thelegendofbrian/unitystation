@@ -4,12 +4,13 @@ using PlayGroup;
 using Tilemaps.Behaviours.Objects;
 using UnityEngine;
 using UnityEngine.Networking;
+using PlayGroups.Input;
 
 /// <summary>
 ///     Toggles the active state of the object by gathering all components and setting
 ///     their active state. It ignores network components so item can be synced
 /// </summary>
-public class VisibleBehaviour : NetworkBehaviour
+public class VisibleBehaviour : InputTrigger
 {
 	//Ignore these types
 	private const string networkId = "NetworkIdentity";
@@ -71,6 +72,8 @@ public class VisibleBehaviour : NetworkBehaviour
 	public virtual void OnVisibilityChange(bool state)
 	{
 	}
+
+	public override void Interact(GameObject originator, Vector3 position, string hand) { }
 
 	private void UpdateState(bool _aliveState)
 	{
