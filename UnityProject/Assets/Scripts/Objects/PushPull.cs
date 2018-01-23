@@ -38,25 +38,4 @@ public class PushPull : VisibleBehaviour
 	{
 		base.Interact(originator, position, hand);
 	}
-
-	//Only happens on LocalPlayer
-	public void TryPush(Vector3Int newPos)
-	{
-		//rare cases it can be null in high lag situations for reasons unknown 
-		//(might have to do with reservation tile on matrix)
-		if (customNetTransform == null) {
-			customNetTransform = GetComponent<CustomNetTransform>();
-			if (customNetTransform == null) {
-				return;
-			}
-		}
-
-		if (customNetTransform.isPushing || !matrix.IsPassableAt(newPos)) {
-			//Cannot push
-			return;
-		}
-
-		//Time to start pushing:
-		customNetTransform.PushToPosition(newPos, PlayerManager.LocalPlayerScript.playerMove.speed, this);
-	}
 }

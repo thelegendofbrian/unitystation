@@ -221,15 +221,17 @@ namespace PlayGroup
 			//Is the current tile restrictive?
 			Vector3Int newPos = currentPosition + direction;
 
-			if (!matrix.IsPassableAt(currentPosition, newPos))
+			if (!matrix.IsPassableAt(newPos) && !matrix.ContainsAt(newPos, gameObject))
 			{
 				return Vector3Int.zero;
-			}
-
-			if (matrix.IsPassableAt(newPos) || matrix.ContainsAt(newPos, gameObject))
-			{
+			} else {
 				return direction;
 			}
+
+			//if (matrix.IsPassableAt(newPos)) //|| matrix.ContainsAt(newPos, gameObject))
+			//{
+			//	return direction;
+			//}
 
 			//could not pass
 			return Vector3Int.zero;
@@ -258,7 +260,6 @@ namespace PlayGroup
 			for (int i = 0; i < pushObj.Length; i++){
 				//Only push, pushable objects
 				if (pushObj[i].isPlayerPushable) {
-					pushObj[i].TryPush(tryPushNewPos);
 					PlayerManager.LocalPlayerScript.playerNetworkActions.CmdTryPush(pushObj[i].gameObject,
 					                                                                tryPushNewPos);
 				}

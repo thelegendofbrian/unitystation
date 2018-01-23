@@ -52,13 +52,13 @@ public class TransformStateMessage : ServerMessage
 	///     Used for client simulation, use false if already updated by prediction
 	///     (to avoid updating it twice)
 	/// </param>
-	public static TransformStateMessage SendToAll(GameObject transformedObject, TransformState state, bool forced = true, bool _isPushing = false)
+	public static TransformStateMessage SendToAll(GameObject transformedObject, TransformState state, bool _isPushing = false, bool forced = true)
 	{
 		var msg = new TransformStateMessage {
 			TransformedObject = transformedObject != null ? transformedObject.GetComponent<NetworkIdentity>().netId : NetworkInstanceId.Invalid,
 			State = state,
-			ForceRefresh = forced,
-			IsPushing = _isPushing
+			IsPushing = _isPushing,
+			ForceRefresh = forced
 		};
 		msg.SendToAll();
 		return msg;

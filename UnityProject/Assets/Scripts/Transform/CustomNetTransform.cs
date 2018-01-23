@@ -135,7 +135,7 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 	private void UpdateServerTransformState(Vector3 pos, bool notify = true, float speed = 4f){
 		serverTransformState.Speed = speed;
 		serverTransformState.localPos = pos;
-		transformState = serverTransformState;
+		//transformState = serverTransformState;
 		if (notify) {
 			NotifyPlayers();
 		}
@@ -227,30 +227,9 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 		updateActiveStatus();
 	}
 
-	/// <summary>
-	/// Client side prediction for pushing
-	/// This allows instant pushing reaction to a pushing event
-	/// on the client who instigated it. The server then validates
-	/// the transform position and returns it if it is illegal
-	/// </summary>
-	public void PushToPosition(Vector3 pos, float speed, PushPull pushComponent)
-	{
-		isPushing = true;
-		registerTile.ReservePosition(Vector3Int.RoundToInt(pos));
-		TransformState newState = new TransformState();
-		newState.Active = true;
-		newState.Speed = speed;
-		newState.localPos = pos;
-		transformState = newState;
-	}
-
 	public void UpdateClientState(TransformState newState, bool _isPushing = false)
 	{
 		if(_isPushing){
-			if(isPushing){
-				//We are already performing this action
-				return;
-			}
 			isPushing = true;
 			registerTile.ReservePosition(Vector3Int.RoundToInt(newState.localPos));
 		}
@@ -324,12 +303,12 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 			return;
 		}
 
-		if (isServer && !isPushing)
+		if (isServer)
 		{
 			CheckSpaceDrift();
 		} 
 
-		if (IsFloating() && !isPushing)
+		if (IsFloating())
 		{
 			SimulateFloating();
 		}
@@ -373,19 +352,10 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 		if (isPushing) {
 			//Pushing is done, Register the new pos
 			if (Vector3.Distance(transform.localPosition, transformState.localPos) < 0.1f) {
-				if (isServer) {
-					isPushing = false;
-					RpcResetPush();
-					RegisterObjects();
-				}
+				isPushing = false;
+				RegisterObjects();
 			}
 		}
-	}
-
-	[ClientRpc]
-	private void RpcResetPush(){
-		isPushing = false;
-		RegisterObjects();
 	}
 
 	/// <summary>

@@ -235,6 +235,12 @@ namespace PlayGroup
 		[ClientRpc(channel = 0)]
 		private void RpcOnServerStateChange(PlayerState newState)
 		{
+			if(!matrix.IsPassableAt(Vector3Int.RoundToInt(newState.Position)) && 
+			   !matrix.ContainsAt(Vector3Int.RoundToInt(newState.Position), gameObject)){
+				//Invalid position for the client (laggy)
+				return;
+			}
+			   
 			serverState = newState;
 			if (pendingActions != null)
 			{
