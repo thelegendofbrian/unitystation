@@ -135,6 +135,7 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 	private void UpdateServerTransformState(Vector3 pos, bool notify = true, float speed = 4f){
 		serverTransformState.Speed = speed;
 		serverTransformState.localPos = pos;
+		transformState = serverTransformState;
 		if (notify) {
 			NotifyPlayers();
 		}

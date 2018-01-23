@@ -10,7 +10,7 @@ public partial class PlayerNetworkActions : NetworkBehaviour
 		CustomNetTransform custNetTransform = objToPush.GetComponent<CustomNetTransform>();
 		if (custNetTransform != null) {
 			custNetTransform.PushTo(posToPushTo, playerSprites.currentDirection, true,
-									playerMove.speed, true);
+			                        playerMove.speed, true);
 		}
 	}
 }

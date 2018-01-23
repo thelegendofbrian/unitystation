@@ -29,7 +29,7 @@ public class TransformStateMessage : ServerMessage
 			{
 				//update NetworkObject transform state
 				var transform = NetworkObject.GetComponent<CustomNetTransform>();
-				transform.UpdateClientState(State);
+				transform.UpdateClientState(State, IsPushing);
 			}
 		}
 	}
