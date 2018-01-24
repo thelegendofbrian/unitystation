@@ -119,26 +119,21 @@ namespace PlayGroups.Input
 			//collect all the sprite renderers
 			List<Renderer> renderers = new List<Renderer>();
 
-			foreach (RaycastHit2D hit in hits)
-			{
-				Transform objectTransform = hit.collider.gameObject.transform;
+			for (int i = 0; i < hits.Length; i++){
+				Transform objectTransform = hits[i].collider.gameObject.transform;
 				Renderer _renderer = IsHit(objectTransform, position - objectTransform.position);
-				if (_renderer != null)
-				{
+				if (_renderer != null) {
 					renderers.Add(_renderer);
 				}
 			}
+
 			bool isInteracting = false;
 			//check which of the sprite renderers we hit and pixel checked is the highest
-			if (renderers.Count > 0)
-			{
-				foreach (Renderer _renderer in renderers.OrderByDescending(sr => sr.sortingOrder)) 
-				{
-					if (Interact(_renderer.transform, position))
-					{
-						isInteracting = true;
-						break;
-					}
+			Renderer[] orderByDescending = renderers.OrderByDescending(sr => sr.sortingOrder).ToArray();
+			for (int i = 0; i < orderByDescending.Length; i++){
+				if (Interact(orderByDescending[i].transform, position)){
+					isInteracting = true;
+					break;
 				}
 			}
 
@@ -173,18 +168,16 @@ namespace PlayGroups.Input
 			//each item ontop of a table should have a higher order in layer
 			SpriteRenderer[] bySortingOrder = spriteRenderers.OrderByDescending(sRenderer => sRenderer.sortingOrder).ToArray();
 
-			foreach (SpriteRenderer spriteRenderer in bySortingOrder)
-			{
-				Sprite sprite = spriteRenderer.sprite;
+			for (int i = 0; i < bySortingOrder.Length; i++){
+				Sprite sprite = bySortingOrder[i].sprite;
 
-				if (spriteRenderer.enabled && sprite)
-				{
-					Vector3 scale = spriteRenderer.gameObject.transform.localScale;
-					Vector3 offset = spriteRenderer.gameObject.transform.localPosition;
+				if (bySortingOrder[i].enabled && sprite) {
+					Vector3 scale = bySortingOrder[i].gameObject.transform.localScale;
+					Vector3 offset = bySortingOrder[i].gameObject.transform.localPosition;
 
 					float pixelsPerUnit = sprite.pixelsPerUnit;
 
-					float angle = spriteRenderer.gameObject.transform.parent.localEulerAngles.z * Mathf.Deg2Rad;
+					float angle = bySortingOrder[i].gameObject.transform.parent.localEulerAngles.z * Mathf.Deg2Rad;
 
 					float x = hitPosition.y * Mathf.Sin(angle) - hitPosition.x * Mathf.Cos(angle);
 					float y = hitPosition.y * Mathf.Cos(angle) - hitPosition.x * Mathf.Sin(angle);
@@ -193,11 +186,11 @@ namespace PlayGroups.Input
 					int texPosY = Mathf.RoundToInt(sprite.rect.y + (y / scale.y - offset.y % 1) * pixelsPerUnit + sprite.rect.height * 0.5f);
 
 					Color pixelColor = sprite.texture.GetPixel(texPosX, texPosY);
-					if (pixelColor.a > 0)
-					{
-						return spriteRenderer;
+					if (pixelColor.a > 0) {
+						return bySortingOrder[i];
 					}
 				}
+
 			}
 
 			return null;
@@ -219,23 +212,33 @@ namespace PlayGroups.Input
 			if (PlayerManager.LocalPlayerScript.IsInReach(position))
 			{
 				//check the actual transform for an input trigger and if there is non, check the parent
-				InputTrigger inputTrigger = _transform.GetComponentInParent<InputTrigger>();
-				if (inputTrigger)
-				{
-					if (objectBehaviour.visibleState)
-					{
-						inputTrigger.Trigger(position);
-						return true;
-					}
-					//Allow interact with cupboards we are inside of!
-					ClosetControl cCtrl = inputTrigger.GetComponent<ClosetControl>();
-					if (cCtrl && cCtrl.transform.position == PlayerManager.LocalPlayerScript.transform.position)
-					{
-						inputTrigger.Trigger(position);
-						return true;
-					}
+				InputTrigger[] inputTrigger = _transform.GetComponentsInParent<InputTrigger>();
+				if(inputTrigger.Length == 0){
 					return false;
 				}
+
+				//A lot of objects can have multiple inputTrigger derived components on them. 
+				//We only want to interact with the first object
+				GameObject firstObj = inputTrigger[0].gameObject;
+				bool hasInteracted = false;
+				for (int i = 0; i < inputTrigger.Length; i++){
+					if(inputTrigger[i].gameObject != firstObj){
+						continue;
+					}
+					if (objectBehaviour.visibleState) {
+						inputTrigger[i].Trigger(position);
+						hasInteracted = true;
+						continue;
+					}
+					//Allow interact with cupboards we are inside of!
+					ClosetControl cCtrl = inputTrigger[i].GetComponent<ClosetControl>();
+					if (cCtrl && cCtrl.transform.position == PlayerManager.LocalPlayerScript.transform.position) {
+						inputTrigger[i].Trigger(position);
+						hasInteracted = true;
+						continue;
+					}
+				}
+				return hasInteracted;
 			}
 			//if we are holding onto an item like a gun attempt to shoot it if we were not in range to trigger anything
 			return InteractHands();

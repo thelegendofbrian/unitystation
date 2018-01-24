@@ -270,22 +270,6 @@ namespace PlayGroup
 		{
 			DoorController doorController = matrix.GetFirst<DoorController>(interactPos);
 
-			//FIXME: make this sit below make sense (turning off for the time being):
-			//if (!doorController)
-			//{
-			//	//I'm assuming this tries to open a door you are stuck in?
-			//	doorController = matrix.GetFirst<DoorController>(Vector3Int.RoundToInt(transform.localPosition));
-
-			//	if (doorController)
-			//	{
-			//		RegisterDoor registerDoor = doorController.GetComponent<RegisterDoor>();
-			//		if (registerDoor.IsPassable(position))
-			//		{
-			//			doorController = null;
-			//		}
-			//	}
-			//}
-
 			// Attempt to open door
 			if (doorController != null && allowInput)
 			{

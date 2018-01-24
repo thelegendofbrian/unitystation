@@ -12,9 +12,9 @@ public class PushPull : VisibleBehaviour
 	private Matrix matrix => registerTile.Matrix;
 	private CustomNetTransform customNetTransform;
 
-	//Check via PlayerMove. Not checked internally so that TryPush
-	//can be used for explosions or atmos events
-	public bool isPlayerPushable = true;
+	public bool isPlayerPushable { get; private set; } = true;
+	public bool isBeingPulled { get; private set; }
+	public GameObject pulledBy;
 
 	private void OnEnable(){
 		customNetTransform = GetComponent<CustomNetTransform>();
@@ -36,6 +36,18 @@ public class PushPull : VisibleBehaviour
 
 	public override void Interact(GameObject originator, Vector3 position, string hand)
 	{
+		if(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftCommand)){
+			if(isBeingPulled){
+				if(pulledBy != PlayerManager.LocalPlayer){
+					//TODO Take it off the other player
+				} else {
+					//TODO Stop pulling
+				}
+			} else {
+				//TODO try to pull the object
+				Debug.Log("TRY TO PULL");
+			}
+		}
 		base.Interact(originator, position, hand);
 	}
 }

@@ -15,6 +15,10 @@ namespace Items
 
 		public override void Interact(GameObject originator, Vector3 position, string hand)
 		{
+			if(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftCommand)){
+				//Trying to pull object
+				return;
+			}
 			if (originator.GetComponent<PlayerScript>().canNotInteract())
 			{
 				return;

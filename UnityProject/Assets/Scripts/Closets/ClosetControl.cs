@@ -152,7 +152,7 @@ namespace Cupboards
 		public override void Interact(GameObject originator, Vector3 position, string hand)
 		{
 			//FIXME this should be rewritten to net messages, see i.e. TableTrigger
-			if (Input.GetKey(KeyCode.LeftControl))
+			if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftCommand))
 			{
 				return;
 			}
