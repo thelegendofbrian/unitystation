@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using PlayGroup;
 
 public class FuelTankHealthBehaviour : HealthBehaviour
 {
@@ -12,7 +13,12 @@ public class FuelTankHealthBehaviour : HealthBehaviour
 
 	protected override void OnDeathActions()
 	{
-		Debug.Log("BREAK PULL HERE!");
+		if (pushPull != null) {
+			if (pushPull.pulledBy == PlayerManager.LocalPlayer) {
+				PlayerManager.LocalPlayerScript.playerNetworkActions.CmdManualPullReset(gameObject);
+			}
+		}
+
 		float delay = 0f;
 		switch (LastDamageType)
 		{

@@ -137,7 +137,12 @@ public class ExplodeWhenShot : NetworkBehaviour
 		{
 			registerTile.Unregister();
 
-			Debug.Log("BREAK PULL HERE!");
+			PushPull pushPull = GetComponent<PushPull>();
+			if(pushPull != null){
+				if(pushPull.pulledBy == PlayerManager.LocalPlayer){
+					PlayerManager.LocalPlayerScript.playerNetworkActions.CmdManualPullReset(gameObject);	
+				}
+			}
 		}
 		catch
 		{

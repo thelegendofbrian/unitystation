@@ -66,7 +66,7 @@ namespace PlayGroups.Input
 
 		private void CheckClick()
 		{
-			if (UnityEngine.Input.GetMouseButtonDown(0) && !UnityEngine.Input.GetKey(KeyCode.LeftControl) && !UnityEngine.Input.GetKey(KeyCode.LeftAlt))
+			if (UnityEngine.Input.GetMouseButtonDown(0) && !UnityEngine.Input.GetKey(KeyCode.LeftAlt))
 			{
 				//change the facingDirection of player on click
 				ChangeDirection();

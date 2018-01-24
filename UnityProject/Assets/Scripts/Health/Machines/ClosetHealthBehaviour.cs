@@ -2,6 +2,7 @@
 using Tilemaps.Behaviours.Objects;
 using UnityEngine;
 using UnityEngine.Networking;
+using PlayGroup;
 
 namespace Objects
 {
@@ -59,7 +60,11 @@ namespace Objects
 				colliders[i].enabled = false;
 			}
 
-			Debug.Log("BREAK PULL HERE!");
+			if (objectActions != null) {
+				if (objectActions.pulledBy == PlayerManager.LocalPlayer) {
+					PlayerManager.LocalPlayerScript.playerNetworkActions.CmdManualPullReset(gameObject);
+				}
+			}
 		}
 
 		private void playDeathSound()

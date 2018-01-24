@@ -38,7 +38,7 @@ public struct TransformState
 	}
 }
 
-[RequireComponent(typeof(ObjectBehaviour))]
+[RequireComponent(typeof(PushPull))]
 public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 {
 	public static readonly Vector3Int InvalidPos = new Vector3Int(0, 0, -100), deOffset = new Vector3Int(-1, -1, 0);
@@ -51,16 +51,18 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 	private TransformState transformState; //client's transform, can get dirty/predictive
 
 	private Matrix matrix => registerTile.Matrix;
-	private ObjectBehaviour objectBehaviour;
+	[HideInInspector]
+	public PushPull pushPull;
 	
 	public TransformState State => serverTransformState;
 
 	public bool isPushing;
 
-	private void Start()
+	protected override void OnEnable()
 	{
 		registerTile = GetComponent<RegisterTile>();
-		objectBehaviour = GetComponent<ObjectBehaviour>();
+		pushPull = GetComponent<PushPull>();
+		base.OnEnable();
 	}
 
 	public override void OnStartServer()
@@ -276,15 +278,15 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 	[Server]
 	public void NotifyPlayer(GameObject playerGameObject)
 	{
-		TransformStateMessage.Send(playerGameObject, gameObject, serverTransformState);
+		TransformStateMessage.Send(playerGameObject, gameObject, serverTransformState,
+		                           pushPull.isBeingPulled, pushPull.pulledBy);
 	}
 
 
 	//managed by UpdateManager
 	public override void UpdateMe()
 	{
-		if (!registerTile)
-		{
+		if (!registerTile) {
 			registerTile = GetComponent<RegisterTile>();
 		}
 		Synchronize();
@@ -305,10 +307,12 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 
 		if (isServer)
 		{
-			CheckSpaceDrift();
+			if (IsInSpace() && !pushPull.isBeingPulled) {
+				CheckSpaceDrift();
+			}
 		} 
 
-		if (IsFloating())
+		if (IsFloating() && IsInSpace() && !pushPull.isBeingPulled)
 		{
 			SimulateFloating();
 		}
@@ -324,6 +328,27 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 //			Debug.LogFormat($"registerTile updating {localToWorld(registerTilePos())}->{localToWorld(Vector3Int.RoundToInt(transform.localPosition))}, " +
 //			                $"ts={localToWorld(Vector3Int.RoundToInt(transformState.localPos))}");
 			RegisterObjects();
+		}
+	}
+
+	//Has to be called by playersync so the movement is on the same frame as players movement (or else lots of jerky movement for the pulling obj)
+	public void AttemptPull(){
+		if (pushPull.pulledBy.transform.hasChanged) {
+			pushPull.pulledBy.transform.hasChanged = false;
+			Vector3 newPos = pushPull.pulledBy.transform.localPosition - (Vector3)pushPull.pullSync.lastDirection;
+			newPos.z = transform.localPosition.z;
+			Vector3Int checkPos = Vector3Int.RoundToInt(newPos);
+			if (matrix.IsPassableAt(checkPos) || matrix.ContainsAt(checkPos, gameObject) ||
+			    matrix.ContainsAt(checkPos, pushPull.pulledBy)) {
+				transformState.localPos = newPos;
+				float journeyLength = Vector3.Distance(transform.localPosition, pushPull.pulledBy.transform.localPosition);
+				transformState.Speed = pushPull.pullSync.playerMove.speed * journeyLength;
+				//Lerp is called so we don't wait for the next frame:
+				Lerp();
+				if (isServer) {
+					serverTransformState.localPos = newPos;
+				}
+			}
 		}
 	}
 

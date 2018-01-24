@@ -9,8 +9,28 @@ public partial class PlayerNetworkActions : NetworkBehaviour
 	{
 		CustomNetTransform custNetTransform = objToPush.GetComponent<CustomNetTransform>();
 		if (custNetTransform != null) {
+			if(custNetTransform.pushPull.isBeingPulled){
+				custNetTransform.pushPull.RpcPullState(null);
+			}
 			custNetTransform.PushTo(posToPushTo, playerSprites.currentDirection, true,
 			                        playerMove.speed, true);
+		}
+	}
+
+	[Command]
+	public void CmdPullState(GameObject objToPull){
+		PushPull pushPull = objToPull.GetComponent<PushPull>();
+		if(pushPull != null){
+			pushPull.RpcPullState(gameObject);
+		}
+	}
+
+	[Command]
+	public void CmdManualPullReset(GameObject objToPull)
+	{
+		PushPull pushPull = objToPull.GetComponent<PushPull>();
+		if (pushPull != null) {
+			pushPull.RpcPullState(null);
 		}
 	}
 }

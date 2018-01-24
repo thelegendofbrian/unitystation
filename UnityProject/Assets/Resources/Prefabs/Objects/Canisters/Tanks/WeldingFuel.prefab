@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 114329278433563846}
   - component: {fileID: 114527046222029886}
   - component: {fileID: 114533782473290288}
-  - component: {fileID: 114867396419559272}
   - component: {fileID: 114183243700281508}
   m_Layer: 11
   m_Name: WeldingFuel
@@ -140,8 +139,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpeedMultiplier: 1
+  pushPull: {fileID: 0}
   isPushing: 0
-  predictivePushing: 0
 --- !u!114 &114117985471735314
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -204,13 +203,8 @@ MonoBehaviour:
   ignoredSpriteRenderers: []
   registerTile: {fileID: 0}
   visibleState: 1
-  allowedToMove: 1
-  currentPos: {x: 0, y: 0, z: 0}
-  isPushable: 1
   pulledBy: {fileID: 0}
-  custNetActiveState: 0
-  pushing: 0
-  pushTarget: {x: 0, y: 0, z: 0}
+  pullSync: {fileID: 0}
 --- !u!114 &114527046222029886
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -240,29 +234,6 @@ MonoBehaviour:
   initialHealth: 25
   isNPC: 0
   maxHealth: 100
---- !u!114 &114867396419559272
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1942658981970304}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c23c49138f42840a1bc22ade283c1694, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isPlayer: 0
-  ignoredSpriteRenderers: []
-  registerTile: {fileID: 0}
-  visibleState: 1
-  allowedToMove: 1
-  currentPos: {x: 0, y: 0, z: 0}
-  isPushable: 1
-  pulledBy: {fileID: 0}
-  custNetActiveState: 0
-  pushing: 0
-  pushTarget: {x: 0, y: 0, z: 0}
-  closetHandlerCache: {fileID: 0}
 --- !u!212 &212357524740156146
 SpriteRenderer:
   m_ObjectHideFlags: 1

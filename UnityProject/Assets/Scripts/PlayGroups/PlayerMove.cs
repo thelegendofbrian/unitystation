@@ -221,6 +221,17 @@ namespace PlayGroup
 			//Is the current tile restrictive?
 			Vector3Int newPos = currentPosition + direction;
 
+			if (playerSync.pullingObject != null) {
+				if (!matrix.IsPassableAt(newPos) && matrix.ContainsAt(newPos, playerSync.pullingObject.gameObject)) {
+					Vector2 directionToPullObj =
+						playerSync.pullingObject.transform.localPosition - transform.localPosition;
+					if (directionToPullObj.normalized != playerSprites.currentDirection) {
+						// Ran into pullObject but was not facing it, saved direction
+						return direction;
+					}
+				}
+			}
+
 			if (!matrix.IsPassableAt(newPos) && !matrix.ContainsAt(newPos, gameObject))
 			{
 				return Vector3Int.zero;

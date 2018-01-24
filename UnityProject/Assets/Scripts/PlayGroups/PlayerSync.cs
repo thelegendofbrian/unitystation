@@ -28,7 +28,7 @@ namespace PlayGroup
 		//TODO: Remove the space damage coroutine when atmos is implemented
 		private bool isApplyingSpaceDmg;
 
-		private Vector2 lastDirection;
+		public Vector2 lastDirection;
 
 		private Matrix matrix => registerTile.Matrix;
 		private Queue<PlayerAction> pendingActions;
@@ -39,6 +39,8 @@ namespace PlayGroup
 
 		private RegisterTile registerTile;
 		private PlayerState serverState;
+
+		public CustomNetTransform pullingObject;
 
 		[SyncVar] private PlayerState serverStateCache; //used to sync with new players
 
@@ -179,14 +181,19 @@ namespace PlayGroup
 
 				PlayerState state = isLocalPlayer ? predictedState : serverState;
 				transform.localPosition = Vector3.MoveTowards(transform.localPosition, state.Position, playerMove.speed * Time.deltaTime);
+				if (state.Position != transform.localPosition) {
+					lastDirection = (state.Position - transform.localPosition).normalized;
+				}
+
+				//Make sure pulling object is synced with player movement:
+				if(pullingObject != null){
+					pullingObject.AttemptPull();
+				}
 
 				//Check if we should still be displaying an ItemListTab and update it, if so.
 				ControlTabs.CheckItemListTab();
 
-				if (state.Position != transform.localPosition)
-				{
-					lastDirection = (state.Position - transform.localPosition).normalized;
-				}
+
 
 				//Registering
 				if (registerTile.Position != Vector3Int.RoundToInt(state.Position))

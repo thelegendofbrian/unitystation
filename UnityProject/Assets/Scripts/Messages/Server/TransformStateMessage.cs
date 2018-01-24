@@ -13,6 +13,10 @@ public class TransformStateMessage : ServerMessage
 	public TransformState State;
 	public NetworkInstanceId TransformedObject;
 
+	//For syncing pull
+	public bool IsBeingPulled;
+	public GameObject Puller;
+
 	///To be run on client
 	public override IEnumerator Process()
 	{
@@ -30,16 +34,23 @@ public class TransformStateMessage : ServerMessage
 				//update NetworkObject transform state
 				var transform = NetworkObject.GetComponent<CustomNetTransform>();
 				transform.UpdateClientState(State, IsPushing);
+
+				//Used for init sync of new players
+				if(IsBeingPulled){
+					transform.pushPull.SyncWithNewPlayers(Puller);
+				}
 			}
 		}
 	}
 
-	public static TransformStateMessage Send(GameObject recipient, GameObject transformedObject, TransformState state, bool forced = true)
+	public static TransformStateMessage Send(GameObject recipient, GameObject transformedObject, TransformState state, bool isBeingPulled, GameObject puller, bool forced = true)
 	{
 		var msg = new TransformStateMessage
 		{
 			TransformedObject = transformedObject != null ? transformedObject.GetComponent<NetworkIdentity>().netId : NetworkInstanceId.Invalid,
 			State = state,
+			IsBeingPulled = isBeingPulled,
+			Puller = puller,
 			ForceRefresh = forced
 		};
 		msg.SendTo(recipient);
