@@ -244,6 +244,10 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 		updateActiveStatus();
 	}
 
+	public void SyncLocalWithServer(){
+		
+	}
+
 	private void updateActiveStatus()
 	{
 		if (transformState.Active)

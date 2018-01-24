@@ -31,6 +31,7 @@ public partial class PlayerNetworkActions : NetworkBehaviour
 		PushPull pushPull = objToPull.GetComponent<PushPull>();
 		if (pushPull != null) {
 			pushPull.RpcPullState(null);
+			objToPull.GetComponent<CustomNetTransform>().ReInitServerState();
 		}
 	}
 }

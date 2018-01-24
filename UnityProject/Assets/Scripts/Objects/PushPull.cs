@@ -56,8 +56,13 @@ public class PushPull : VisibleBehaviour
 				//TODO because players do not have CNT, need to come up with a solution to pull players
 				return;
 			}
-
-			PlayerManager.LocalPlayerScript.playerNetworkActions.CmdPullState(gameObject);
+			if (isBeingPulled && pulledBy == PlayerManager.LocalPlayer) {
+				//StopPulling
+				PlayerManager.LocalPlayerScript.playerNetworkActions.CmdManualPullReset(gameObject);
+				PredictiveStopPull();
+			} else {
+				PlayerManager.LocalPlayerScript.playerNetworkActions.CmdPullState(gameObject);
+			}
 
 			//TODO Prediction for starting to pull.
 		}
@@ -75,6 +80,7 @@ public class PushPull : VisibleBehaviour
 
 		if (isBeingPulled) {
 			if (pulledBy != PlayerManager.LocalPlayer) {
+				//Someone else
 				SetPull(false);
 				SetPull(true, _pulledBy);
 			} else {
@@ -103,6 +109,15 @@ public class PushPull : VisibleBehaviour
 				pullSync.pullingObject = null;
 				pullSync = null;
 			}
+		}
+	}
+
+	public void PredictiveStopPull(){
+		//IsBeingPulled is being left for the server to update
+		pulledBy = null;
+		if (pullSync != null) {
+			pullSync.pullingObject = null;
+			pullSync = null;
 		}
 	}
 }

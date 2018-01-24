@@ -225,6 +225,15 @@ namespace PlayGroup
 				if (!matrix.IsPassableAt(newPos) && matrix.ContainsAt(newPos, playerSync.pullingObject.gameObject)) {
 					Vector2 directionToPullObj =
 						playerSync.pullingObject.transform.localPosition - transform.localPosition;
+
+					if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftControl)) {
+						Vector3 checkDir = direction;
+						if (directionToPullObj.normalized != (Vector2)checkDir) {
+							//Player is trying to run and unhook the pulled object at the same time
+							return direction;
+						}
+					}
+
 					if (directionToPullObj.normalized != playerSprites.currentDirection) {
 						// Ran into pullObject but was not facing it, saved direction
 						return direction;
@@ -273,6 +282,11 @@ namespace PlayGroup
 				if (pushObj[i].isPlayerPushable) {
 					PlayerManager.LocalPlayerScript.playerNetworkActions.CmdTryPush(pushObj[i].gameObject,
 					                                                                tryPushNewPos);
+					//PushObj is being pulled and will be stopped by the server.
+					//Predictive stop it so it doesn't lerp around on laggy clients:
+					if(pushObj[i].isBeingPulled){
+						pushObj[i].PredictiveStopPull();
+					}
 				}
 			}
 		}
