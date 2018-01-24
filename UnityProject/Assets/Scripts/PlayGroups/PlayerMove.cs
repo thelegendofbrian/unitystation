@@ -46,6 +46,8 @@ namespace PlayGroup
 		private RegisterTile registerTile;
 		private Matrix matrix => registerTile.Matrix;
 
+		private bool isTryingPush = false;
+
 		/// temp solution for use with the UI network prediction
 		public bool isMoving { get; } = false;
 
@@ -267,6 +269,10 @@ namespace PlayGroup
 		}
 
 		private void InteractPush(Vector3Int interactPos, Vector3Int dirOfIntent){
+			if(isTryingPush){
+				//Do not spam push messages
+				return;
+			}
 			PushPull[] pushObj = matrix.Get<PushPull>(interactPos).ToArray();
 			//Give the new position you want to push the object into:
 			Vector3Int tryPushNewPos = interactPos + dirOfIntent;
@@ -282,14 +288,27 @@ namespace PlayGroup
 				if (pushObj[i].isPlayerPushable) {
 					PlayerManager.LocalPlayerScript.playerNetworkActions.CmdTryPush(pushObj[i].gameObject,
 					                                                                tryPushNewPos);
+					
 					//PushObj is being pulled and will be stopped by the server.
 					//Predictive stop it so it doesn't lerp around on laggy clients:
 					if(pushObj[i].isBeingPulled){
 						pushObj[i].PredictiveStopPull();
 					}
+
+					//Only push the first:
+					isTryingPush = true;
+					StartCoroutine(TryPushCoolDown());
+					break;
 				}
 			}
 		}
+
+		IEnumerator TryPushCoolDown()
+		{
+			yield return new WaitForSeconds(0.1f);
+			isTryingPush = false;
+		}
+
 
 		private void InteractDoor(Vector3Int interactPos)
 		{

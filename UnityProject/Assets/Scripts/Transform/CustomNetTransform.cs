@@ -58,16 +58,16 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 
 	public bool isPushing;
 
-	protected override void OnEnable()
+	private void Start()
 	{
 		registerTile = GetComponent<RegisterTile>();
 		pushPull = GetComponent<PushPull>();
-		base.OnEnable();
 	}
 
 	public override void OnStartServer()
 	{
 		InitServerState();
+		registerTile = GetComponent<RegisterTile>();
 		base.OnStartServer();
 	}
 
@@ -126,11 +126,8 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 	[Server]
 	public void PushTo(Vector3 pos, Vector2 impulseDir, bool notify = true, float speed = 4f, bool _isPushing = false)
 	{
-		if (IsInSpace()) {
-			serverTransformState.Impulse = impulseDir;
-		} else {
-			SetPosition(pos, notify, speed, _isPushing);
-		}
+		serverTransformState.Impulse = impulseDir;
+		SetPosition(pos, notify, speed, _isPushing);
 	}
 
 	[Server]
@@ -311,12 +308,12 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 
 		if (isServer)
 		{
-			if (IsInSpace() && !pushPull.isBeingPulled) {
+			if (!pushPull.isBeingPulled) {
 				CheckSpaceDrift();
 			}
 		} 
 
-		if (IsFloating() && IsInSpace() && !pushPull.isBeingPulled)
+		if (IsFloating() && !pushPull.isBeingPulled)
 		{
 			SimulateFloating();
 		}
@@ -433,10 +430,6 @@ public class CustomNetTransform : ManagedNetworkBehaviour //see UpdateManager
 			x < 0 ? (int) Math.Floor(roundable.x) : (int) Math.Ceiling(roundable.x),
 			y < 0 ? (int) Math.Floor(roundable.y) : (int) Math.Ceiling(roundable.y),
 			0);
-	}
-
-	public bool IsInSpace(){
-		return matrix.IsSpaceAt(Vector3Int.RoundToInt(transform.localPosition));
 	}
 
 	public bool IsFloating()

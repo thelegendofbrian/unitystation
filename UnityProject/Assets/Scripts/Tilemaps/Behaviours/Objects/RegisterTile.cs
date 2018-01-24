@@ -30,9 +30,9 @@ namespace Tilemaps.Behaviours.Objects
 			set { parentNetId = value; }
 		}
 
-		private void SetParent(NetworkInstanceId netId)
+		private void SetParent(NetworkInstanceId _netId)
 		{
-			GameObject parent = ClientScene.FindLocalObject(netId);
+			GameObject parent = ClientScene.FindLocalObject(_netId);
 			Unregister();
 			layer = parent.GetComponent<ObjectLayer>();
 			Matrix = parent.GetComponentInParent<Matrix>();
@@ -61,7 +61,7 @@ namespace Tilemaps.Behaviours.Objects
 
 		public void Start()
 		{
-			if (isServer && transform.parent != null)
+			if (CustomNetworkManager.Instance._isServer && transform.parent != null)
 			{
 				ParentNetId = transform.parent.GetComponentInParent<NetworkIdentity>().netId;
 			}
